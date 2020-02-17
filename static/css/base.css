@@ -1,0 +1,14 @@
+body {
+  background: rgba(0,176,216);
+}
+
+nav {
+  background: white;
+  padding: 0px !important;
+}
+
+nav img {
+  width: 200px;
+  height: auto;
+  margin: 15px;
+}

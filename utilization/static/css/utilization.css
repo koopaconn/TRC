@@ -1,0 +1,18 @@
+.container {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.row {
+  padding-left: 10%;
+  padding-right: 10%;
+}
+
+#weekTable {
+  text-align: left;
+}
+
+#updateRow .col-md p {
+  text-align: left;
+  font-weight: bold;
+}

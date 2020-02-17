@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+{% load render_table from django_tables2 %}
+{% load bootstrap3 %}
+
+{% block title_block %}
+testfrom
+{% endblock %}
+
+{% block style_block %}
+<link rel="stylesheet" href="{% static 'css/testform.css' %}">
+<script type="text/javascript" src="{% static '/js/testform.js' %}"></script>
+{% endblock %}
+
+{% block body_block %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="{% url 'testform:view_testform' %}">Block Site Tool</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'testform:view_testform' %}">New Block<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'testform:view_testformList' %}">Update Block</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'testform:view_testformListDelete' %}">Delete Block</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="jumbotron">
+    <h1>Delete Block Table</h1>
+
+    <div class="dropdown">
+      <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Block ID Links
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        {% for blockid in view.blocks %}
+            <a class="dropdown-item" href="delete/{{blockid.id}}">{{ blockid.blockID }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <br>
+    {% if filter %}
+      <form action="" method="get" class="form form-inline">
+          {% bootstrap_form filter.form layout='inline' %}
+            {% bootstrap_button 'filter' %}
+      </form>
+    {% endif %}
+
+    <div class="" id="directable">
+      {% render_table table%}
+    </div>
+  </div>
+
+
+{% endblock %}

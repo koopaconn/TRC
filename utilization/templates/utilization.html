@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+
+{% block title_block %}
+utilization
+{% endblock %}
+
+{% block style_block %}
+<link rel="stylesheet" href="{% static 'css/utilization.css' %}">
+<script type="text/javascript" src="{% static '/js/utilization.js' %}"></script>
+{% endblock %}
+
+{% block body_block %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand">Utilization</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'utilization:view_weekVarGet' %}">Change Week<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'utilization:view_utilizationNames' %}">Edit Names<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'utilization:view_utilizationProjects' %}">Edit Projects<span class="sr-only">(current)</span></a>
+      </li>
+
+    </ul>
+  </div>
+</nav>
+
+<div class="container" id="weekTable">
+<div class="jumbotron">
+
+<h2 style="text-align:center;">Week of {{ week }} {{ test }}</h2>
+<br>
+<div class="row">
+  <div class="col-md">
+    <form method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Save">
+    </form>
+  </div>
+  <div class="col-md">
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Project</th>
+        <th>Hours</th>
+      </tr>
+      {% for week in view.utilList %}
+      <tr>
+        <td>{{ week.name }}</td>
+        <td>{{ week.project }}</td>
+        <td style="text-align:right;">{{ week.hours }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+  </div>
+  </div>
+  <h2>Totals</h2>
+  <table>
+    <tr>
+      {% for name in hrsNames %}
+      <th>
+        {{ name }} <strong>|</strong>
+      </th>
+      {% endfor %}
+    </tr>
+    <tr>
+      {% for hrs in hrsTot %}
+      <td>
+          {{ hrs }}
+      </td>
+      {% endfor %}
+    </tr>
+  </table>
+  {% comment %} <p>Conn: {{ totConn }} <strong>|</strong> Grotheer: {{ totGrot }} <strong>|</strong> Potts: {{ totPott }} <strong>|</strong> Torbic: {{ totTorb }}</p> {% endcomment %}
+  <br>
+  <p>Week: {{ totWeek }}
+  <br>Utilization: {{ totUtil }}%</p>
+
+  </div>
+</div>
+
+
+
+
+
+{% endblock %}

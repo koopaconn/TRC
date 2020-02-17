@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+
+{% block title_block %}
+testfrom
+{% endblock %}
+
+{% block style_block %}
+<link rel="stylesheet" href="{% static 'css/testform.css' %}">
+<script type="text/javascript" src="{% static '/js/testform.js' %}"></script>
+{% endblock %}
+
+{% block body_block %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="{% url 'testform:view_testform' %}">Block Site Tool</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'testform:view_testform' %}">New Block<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'testform:view_testformList' %}">Update Block</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div id="map" class="map"></div>
+<div class="row" id='mapRow'>
+  <div class="col-md-2">
+    <select id="layer-select">
+      <option value="Aerial">Aerial</option>
+      <option value="AerialWithLabelsOnDemand" selected>Aerial with labels</option>
+      <option value="RoadOnDemand">Road</option>
+      <option value="CanvasDark">Road dark</option>
+      <option value="OrdnanceSurvey">Ordnance Survey</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <span id="mouse-position"></span>
+  </div>
+  <div class="col-md">
+    <form>
+      <input type="textbox" id=coordtext placeholder="Enter Coordinates"></input>
+      <button type='button' id='Get'>Submit</button>
+    </form>
+  </div>
+  <div class="col-md">
+    <form class="measuring-types">
+        <span>Measurements: </span>
+        <label>
+          <input type="radio" name="measurement" value="LineString" checked> Distance
+        </label>
+        <label>
+          <input type="radio" name="measurement" value="Polygon"> Area
+        </label>
+    </form>
+  </div>
+  <div class="col-md">
+    <div class="result-wrapper">
+      <span>Distance: </span>
+      <samp id="js-result">n/a</samp>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+
+    {% comment %} <div class="" id='hidden' style="display: none"> {% endcomment %}
+      {{ form.author.as_hidden }}
+      {{ form.editBy.as_hidden }}
+    {% comment %} </div> {% endcomment %}
+
+    <div id=consistencyWrapper class="fieldWrapper">
+
+        <p id='consistency'>Consistency</p>
+
+        <span title="Unique Segment ID"><p id="P_blockID">{{ form.blockID.label_tag }}</p></span>
+        {{form.blockID}}
+        {{ form.blockID.errors }}
+
+        <span title="N – no parking lane and no other special lane
+PK – parking lane present on outside of traveled way or parking explicitly marked by pavement markings
+SP – parking is permitted on outside of traveled way but is not explicitly marked as a parking lane
+CLP – parking is permitted only for part of the day on the outside-most traveled lane (curb lane)
+BL – marked bicycle lane on roadway (sharrow markings alone do not constitute a bicycle lane; nor do off-road bicycle paths)
+OTH – other special lane present">
+        <p id="P_parkSpecialLane">{{ form.parkSpecialLane.label_tag }}</p></span>
+        {{form.parkSpecialLane}}
+        {{ form.parkSpecialLane.errors }}
+
+        <p></p>
+        {{ form.consistantBlock.label_tag }}
+        {{form.consistantBlock}}
+        {{ form.consistantBlock.errors }}
+    </div>
+
+    <div id=roadwayWrapper class="fieldWrapper">
+        <p id='consistency'>Roadway Data</p>
+        <span title="2U – two-lane undivided
+3T – two-lane with center two way left turn lane
+4U – four-lane undivided
+4D – four-lane divided
+5T – four-lane with center two-way left turn lane
+6U – six-lane undivided
+6D – six-lane divided">{{ form.rodwayType.label_tag }}</span>
+        {{ form.rodwayType }}
+        {{ form.rodwayType.errors }}
+
+
+        <span title="N – No median or median treatment (cross section with double yellow centerline)
+R – Raised median (separated from roadway by a curb)
+D – Depressed median (grass median with no curbs)
+F – Flush median (paved median flush with paved roadway surface)">{{ form.medianType.label_tag }}</span>
+        {{form.medianType}}
+        {{ form.medianType.errors }}
+
+        <span title="T – Tangent
+GC – Gentle Curves
+SC – Sharp Curves">{{ form.horAlignment.label_tag }}</span>
+        {{form.horAlignment}}
+        {{ form.horAlignment.errors }}
+
+        {{ form.speedLimit.label_tag }}
+        {{form.speedLimit}}
+        {{ form.speedLimit.errors }}
+    </div>
+
+    <div id=shoulderWrapper class="fieldWrapper">
+        <p id='consistency'>Shoulder Data</p>
+        <div class="row">
+          <div class="col-md">
+            <p id="shld">Decreasing</p>
+            <span title="P – Paved shoulder
+T – Turf shoulder
+G – Gravel shoulder
+C – Composite shoulder
+VC – Vertical curb at edge of traveled way
+MC – Sloping or mountable curve at edge of traveled way
+CG – Vertical curb and gutter at edge of traveled way
+MG – Sloping or mountable curb and gutter at edge of traveled way
+PC  - Paved shoulder with curb at outside edge of shoulder
+N – No shoulder (and no curb or curb and gutter)"><p>{{ form.shoulderTypeDec.label_tag }}</p></span>
+            {{form.shoulderTypeDec}}
+            {{ form.shoulderTypeDec.errors }}
+            <span title="Feet"><p>{{ form.shoulderWidthDec.label_tag }}</p></span>
+            {{form.shoulderWidthDec}}
+            {{ form.shoulderWidthDec.errors }}
+            <span title="Feet"><p>{{ form.gutterWidthDec.label_tag }}</p></span>
+            {{form.gutterWidthDec}}
+            {{ form.gutterWidthDec.errors }}
+            <span title="Feet"><p>{{ form.rightLWidthDec.label_tag }}</p></span>
+            {{form.rightLWidthDec}}
+            {{ form.rightLWidthDec.errors }}
+            <span title="Feet"><p>{{ form.centerLWidthDec.label_tag }}</p></span>
+            {{form.centerLWidthDec}}
+            {{ form.centerLWidthDec.errors }}
+            <span title="Feet"><p>{{ form.LeftLWidthDec.label_tag }}</p></span>
+            {{form.LeftLWidthDec}}
+            {{ form.LeftLWidthDec.errors }}
+          </div>
+          <div class="col-md">
+            <p id="shld">Increasing</p>
+            {{ form.shoulderTypeInc.errors }}
+            <span title="P – Paved shoulder
+T – Turf shoulder
+G – Gravel shoulder
+C – Composite shoulder
+VC – Vertical curb at edge of traveled way
+MC – Sloping or mountable curve at edge of traveled way
+CG – Vertical curb and gutter at edge of traveled way
+MG – Sloping or mountable curb and gutter at edge of traveled way
+PC  - Paved shoulder with curb at outside edge of shoulder
+N – No shoulder (and no curb or curb and gutter)"><p>{{ form.shoulderTypeInc.label_tag }}</p></span>
+            {{form.shoulderTypeInc}}
+            {{ form.shoulderTypeInc.errors }}
+            <span title="Feet"><p>{{ form.shoulderWidthInc.label_tag }}</p></span>
+            {{form.shoulderWidthInc}}
+            {{ form.shoulderWidthInc.errors }}
+            <span title="Feet"><p>{{ form.gutterWidthInc.label_tag }}</p></span>
+            {{form.gutterWidthInc}}
+            {{ form.gutterWidthInc.errors }}
+            <span title="Feet"><p>{{ form.rightLWidthInc.label_tag }}</p></span>
+            {{form.rightLWidthInc}}
+            {{ form.rightLWidthInc.errors }}
+            <span title="Feet"><p>{{ form.centerLWidthInc.label_tag }}</p></span>
+            {{form.centerLWidthInc}}
+            {{ form.centerLWidthInc.errors }}
+            <span title="Feet"><p>{{ form.LeftLWidthInc.label_tag }}</p></span>
+            {{form.LeftLWidthInc}}
+            {{ form.LeftLWidthInc.errors }}
+          </div>
+        </div>
+    </div>
+
+    <br>
+    <br>
+    <p>{{ form.comment.label_tag }}</p>
+    {{form.comment}}
+    {{ form.comment.errors }}
+    <br>
+    {{ form.state.label_tag }}
+    {{form.state}}
+    {{ form.state.errors }}
+    <br><br>
+    <button type="submit" class="btn btn-primary" name='formsubmit' value=1>Update</button>
+
+    <a class="trigger_popup_fricc btn btn-danger">Delete</a>
+
+    <div class="hover_bkgr_fricc">
+        <span class="helper"></span>
+        <div>
+          <p>Are you sure you want to delete this block?</p>
+          <button type="submit" class="btn btn-danger" name='formdelete' value=1>Yes</button>
+          <span class="popupCloseButton btn btn-secondary">No</span>
+        </div>
+    </div>
+
+  </form>
+
+</div>
+
+<script type="text/javascript" src="{% static '/js/openlayers.js' %}"></script>
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title_block %}
+Home Page
+{% endblock %}
+
+{% block style_block %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+{% block body_block %}
+
+<div class="container">
+<div class="jumbotron" style="backgroud-color:white!imporant; margin:25px">
+  <h1 class="display-3">TRC Hub</h1>
+  <p class="lead">Welcome to the MRIGlobal Transportation Research Center's homepage. If you are here to fill out a survey or use a tool please go to the URL given. If you are
+  unsure of the URL please contact: <br><br>Ingrid Potts <br>ipotts@mriglobal.org</p>
+</div>
+</div>
+
+{% endblock %}
